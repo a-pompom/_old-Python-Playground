@@ -3,7 +3,7 @@ from ..player import Player
 
 def test_initial_state():
     # GIVEN
-    expected = Player.CANDIDATE['player1']
+    expected = Player.CANDIDATE.PLAYER_1
     sut = Player()
 
     # WHEN
@@ -15,8 +15,8 @@ def test_initial_state():
 
 def test_toggle_1p_to_2p():
     # GIVEN
-    expected = [Player.CANDIDATE['player1'], Player.CANDIDATE['player2'], Player.CANDIDATE['player1'],
-                Player.CANDIDATE['player2']]
+    expected = [Player.CANDIDATE.PLAYER_1, Player.CANDIDATE.PLAYER_2, Player.CANDIDATE.PLAYER_1,
+                Player.CANDIDATE.PLAYER_2]
     sut = Player()
 
     # WHEN
