@@ -1,7 +1,10 @@
 import dataclasses
 
-from string_builder import StringBuilder
 from coordinate import Coordinate
+from exception import AlreadyBoardFilledException
+from player import Player
+from settlement import Settlement
+from string_builder import StringBuilder
 
 # 盤面のマスの初期値
 INITIAL_BOARD_MARK = '!'
@@ -12,6 +15,7 @@ class BoardStatus:
     """ 盤面の状態管理を責務に持つ """
     coordinate: dict[tuple[int, int], str]
     size: int
+    player: Player
 
     def __post_init__(self):
         self.coordinate = {(x, y): INITIAL_BOARD_MARK
@@ -82,8 +86,9 @@ class Board:
     """ 盤面を表示する要素の保持を責務に持つ"""
 
     def __init__(self, size=3):
-        self.status = BoardStatus(size=size, coordinate={})
+        self.status = BoardStatus(size=size, coordinate={}, player=Player())
         self.view = BoardView(self.status)
+        self.settlement = Settlement(self.status)
 
     @property
     def size(self):
@@ -96,4 +101,13 @@ class Board:
         :param coordinate: 更新対象の座標
         """
 
-        self.status.coordinate[(coordinate.x, coordinate.y)] = coordinate.value
+        pos = (coordinate.x, coordinate.y)
+        # 入力済み
+        if self.status.coordinate[pos] != INITIAL_BOARD_MARK:
+            raise AlreadyBoardFilledException
+
+        self.status.coordinate[pos] = coordinate.value
+
+    def inspect_settlement(self):
+        self.settlement.inspect()
+

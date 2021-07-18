@@ -1,6 +1,7 @@
 from board import Board
 from coordinate import Coordinate, InvalidCoordinateException
-from player import Player
+from exception import AlreadyBoardFilledException
+from settlement import GameSettled
 
 
 class StartPhase:
@@ -27,7 +28,6 @@ class MainPhase:
 
         :param board: 盤面
         """
-        player = Player()
 
         while True:
             raw_input = self._read_input()
@@ -37,16 +37,24 @@ class MainPhase:
                 return
 
             # 盤面更新
-            coordinate = Coordinate(player.get_mark(), board.size)
+            coordinate = Coordinate(board.status.player.get_mark(), board.size)
             try:
                 coordinate.assign(raw_input)
-            except InvalidCoordinateException as e:
+                board.update(coordinate)
+            except (InvalidCoordinateException, AlreadyBoardFilledException) as e:
                 print(e.MESSAGE)
                 continue
 
-            board.update(coordinate)
+            # 勝敗判定
+            try:
+                board.inspect_settlement()
+            except GameSettled as settled:
+                print(settled.message)
+                return
+
+            # 次のターンへ
             print(board.view)
-            player.change()
+            board.status.player.change()
 
     def _read_input(self) -> str:
         """
@@ -58,7 +66,17 @@ class MainPhase:
 
 
 class EndPhase:
-    pass
+    """ 終了メッセージの表示を責務に持つ """
+    END_MESSAGE = 'ゲームを終了します。'
+
+    def proceed(self, board: Board):
+        """
+        phase進行として、終了メッセージを表示
+
+        :param board: 盤面
+        """
+
+        print(self.END_MESSAGE)
 
 
 class Game:
