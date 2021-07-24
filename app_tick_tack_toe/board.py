@@ -1,18 +1,21 @@
 import dataclasses
 
-from coordinate import Coordinate
-from exception import AlreadyBoardFilledException
-from player import Player
-from settlement import Settlement
-from string_builder import StringBuilder
+from app_tick_tack_toe.coordinate import Coordinate
+from app_tick_tack_toe.exception import AlreadyBoardFilledException
+from app_tick_tack_toe.player import Player
+from app_tick_tack_toe.string_builder import StringBuilder
 
 # 盤面のマスの初期値
 INITIAL_BOARD_MARK = '!'
+DEFAULT_BOARD_SIZE = 3
+
+assertion_exc = AlreadyBoardFilledException
 
 
 @dataclasses.dataclass
 class BoardStatus:
     """ 盤面の状態管理を責務に持つ """
+
     coordinate: dict[tuple[int, int], str]
     size: int
     player: Player
@@ -64,7 +67,7 @@ class BoardView:
         # 描画のバランスを考慮すると、空白は一律同一ではなく、間隔を変えた方が見映えがいい
         # よって、位置ごとの空白を保持しておく
         space = {'head': '  ', 'mid': '    ', 'tail': ''}
-        marks = [self.status.coordinate[line_number, x] for x in range(0, self.status.size)]
+        marks = [self.status.coordinate[x, line_number] for x in range(0, self.status.size)]
 
         # 「  !    !    !」のようにマークを印字
         for i in range(0, self.status.size):
@@ -85,9 +88,12 @@ class BoardView:
 class Board:
     """ 盤面を表示する要素の保持を責務に持つ"""
 
-    def __init__(self, size=3):
+    def __init__(self, size=DEFAULT_BOARD_SIZE):
         self.status = BoardStatus(size=size, coordinate={}, player=Player())
         self.view = BoardView(self.status)
+
+        # 循環importを防ぐため、スコープをクラス内へ限定させる
+        from settlement import Settlement
         self.settlement = Settlement(self.status)
 
     @property
@@ -109,5 +115,6 @@ class Board:
         self.status.coordinate[pos] = coordinate.value
 
     def inspect_settlement(self):
-        self.settlement.inspect()
+        """ 勝敗判定 """
 
+        self.settlement.inspect()

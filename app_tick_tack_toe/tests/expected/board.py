@@ -23,3 +23,15 @@ def get_single_both_player_board() -> str:
 
 def get_multiple_both_player_board() -> str:
     return get_board('multipleBothPlayerInput.txt')
+
+
+def get_draw_board() -> str:
+    return get_board('drawBoard.txt')
+
+
+def get_1p_settled_board() -> str:
+    return get_board('player1SettledBoard.txt')
+
+
+def get_2p_settled_board() -> str:
+    return get_board('player2SettledBoard.txt')
