@@ -1,11 +1,14 @@
-from board import Board
-from coordinate import Coordinate, InvalidCoordinateException
-from player import Player
+from app_tick_tack_toe.board import Board
+from app_tick_tack_toe.coordinate import Coordinate
+from app_tick_tack_toe.exception import AlreadyBoardFilledException, GameSettled, InvalidCoordinateException
+from app_tick_tack_toe.string_builder import StringBuilder
+
+LINE_BREAK = StringBuilder.LINE_BREAK
 
 
 class StartPhase:
     """ 開始処理として、開始メッセージ・初期盤面の表示を責務に持つ """
-    START_MESSAGE = 'start'
+    START_MESSAGE = 'ゲームを開始します。'
 
     def proceed(self, board: Board):
         """
@@ -18,7 +21,7 @@ class StartPhase:
 
 
 class MainPhase:
-    INPUT_PROMPT = '手を入力してください。\n'
+    INPUT_PROMPT = f'手を入力してください。{LINE_BREAK}'
     END_INPUT = 'END'
 
     def proceed(self, board: Board):
@@ -27,7 +30,6 @@ class MainPhase:
 
         :param board: 盤面
         """
-        player = Player()
 
         while True:
             raw_input = self._read_input()
@@ -37,16 +39,26 @@ class MainPhase:
                 return
 
             # 盤面更新
-            coordinate = Coordinate(player.get_mark(), board.size)
+            coordinate = Coordinate(board.status.player.get_mark(), board.size)
             try:
                 coordinate.assign(raw_input)
-            except InvalidCoordinateException as e:
+                board.update(coordinate)
+            except (InvalidCoordinateException, AlreadyBoardFilledException) as e:
                 print(e.MESSAGE)
                 continue
 
-            board.update(coordinate)
+            # 勝敗判定
+            try:
+                board.inspect_settlement()
+            except GameSettled as settled:
+                print(board.view)
+                print(settled.settle_message)
+                return
+
+            # 次のターンへ
             print(board.view)
-            player.change()
+            print('')
+            board.status.player.change()
 
     def _read_input(self) -> str:
         """
@@ -55,10 +67,6 @@ class MainPhase:
         :return: 入力文字列
         """
         return input(self.INPUT_PROMPT)
-
-
-class EndPhase:
-    pass
 
 
 class Game:

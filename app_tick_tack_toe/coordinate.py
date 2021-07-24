@@ -1,14 +1,19 @@
-class InvalidCoordinateException(Exception):
-    MESSAGE = '不正です'
+from typing import Optional
+
+from app_tick_tack_toe.exception import InvalidCoordinateException
 
 
 class Coordinate:
     """ 座標の保持・座標が妥当かどうかのバリデーションを責務に持つ """
 
-    def __init__(self, value: str, max_size: int = 2):
+    def __init__(self, value: str, max_size: Optional[int] = None):
         self.x = None
         self.y = None
         self.value = value
+
+        if not max_size:
+            from app_tick_tack_toe.board import DEFAULT_BOARD_SIZE
+            max_size = DEFAULT_BOARD_SIZE - 1
 
         # 座標がとりうる最大値/最小値
         self._max_size = max_size

@@ -1,5 +1,7 @@
 import pytest
-from ..coordinate import Coordinate, InvalidCoordinateException
+
+from app_tick_tack_toe.coordinate import Coordinate
+from app_tick_tack_toe.exception import InvalidCoordinateException
 
 
 # 座標バリデーションのテスト
@@ -33,5 +35,5 @@ class TestAssignForInvalid:
         sut = Coordinate('')
 
         # WHEN, THEN
-        with (pytest.raises(InvalidCoordinateException)):
+        with pytest.raises(InvalidCoordinateException):
             sut.assign(raw_coordinate)

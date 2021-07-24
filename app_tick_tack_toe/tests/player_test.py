@@ -1,4 +1,4 @@
-from ..player import Player
+from app_tick_tack_toe.player import Player
 
 
 def test_initial_state():
