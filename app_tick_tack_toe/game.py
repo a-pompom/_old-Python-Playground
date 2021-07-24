@@ -1,12 +1,14 @@
-from board import Board
-from coordinate import Coordinate, InvalidCoordinateException
-from exception import AlreadyBoardFilledException
-from settlement import GameSettled
+from app_tick_tack_toe.board import Board
+from app_tick_tack_toe.coordinate import Coordinate
+from app_tick_tack_toe.exception import AlreadyBoardFilledException, GameSettled, InvalidCoordinateException
+from app_tick_tack_toe.string_builder import StringBuilder
+
+LINE_BREAK = StringBuilder.LINE_BREAK
 
 
 class StartPhase:
     """ 開始処理として、開始メッセージ・初期盤面の表示を責務に持つ """
-    START_MESSAGE = 'start'
+    START_MESSAGE = 'ゲームを開始します。'
 
     def proceed(self, board: Board):
         """
@@ -19,7 +21,7 @@ class StartPhase:
 
 
 class MainPhase:
-    INPUT_PROMPT = '手を入力してください。\n'
+    INPUT_PROMPT = f'手を入力してください。{LINE_BREAK}'
     END_INPUT = 'END'
 
     def proceed(self, board: Board):
@@ -49,11 +51,13 @@ class MainPhase:
             try:
                 board.inspect_settlement()
             except GameSettled as settled:
-                print(settled.message)
+                print(board.view)
+                print(settled.settle_message)
                 return
 
             # 次のターンへ
             print(board.view)
+            print('')
             board.status.player.change()
 
     def _read_input(self) -> str:
@@ -63,20 +67,6 @@ class MainPhase:
         :return: 入力文字列
         """
         return input(self.INPUT_PROMPT)
-
-
-class EndPhase:
-    """ 終了メッセージの表示を責務に持つ """
-    END_MESSAGE = 'ゲームを終了します。'
-
-    def proceed(self, board: Board):
-        """
-        phase進行として、終了メッセージを表示
-
-        :param board: 盤面
-        """
-
-        print(self.END_MESSAGE)
 
 
 class Game:

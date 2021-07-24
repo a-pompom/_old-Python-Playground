@@ -1,12 +1,5 @@
-from board import BoardStatus, INITIAL_BOARD_MARK
-
-
-class GameSettled(Exception):
-    """ ゲーム決着の表現を責務に持つ """
-
-    def __init__(self, message: str):
-        self.message = message
-        super().__init__(message)
+from app_tick_tack_toe.board import BoardStatus, INITIAL_BOARD_MARK
+from app_tick_tack_toe.exception import GameSettled
 
 
 class Settlement:
@@ -74,40 +67,65 @@ class Settlement:
         横方向の勝敗判定 横の盤が1人のプレイヤーで埋められていれば、勝敗が確定
         """
 
+        # いずれかの行で揃っているか判定するために保持
+        horizontal_same_count = 0
+
         for y in range(0, self.status.size):
+
+            # 横の判定
             for x in range(0, self.status.size):
-
-                if not self._is_same_mark(x, y):
-                    return
-
-        self._settle_winner()
+                if self._is_same_mark(x, y):
+                    horizontal_same_count += 1
+            # 揃ったか
+            else:
+                if horizontal_same_count == self.status.size:
+                    self._settle_winner()
+                horizontal_same_count = 0
 
     def _inspect_vertical(self):
         """
         縦方向の勝敗判定 縦の盤が1人のプレイヤーで埋められていれば、勝敗が確定
         """
 
+        # いずれかの列で揃っているか判定するために保持
+        vertical_same_count = 0
+
         for x in range(0, self.status.size):
+
+            # 縦の判定
             for y in range(0, self.status.size):
 
-                if not self._is_same_mark(x, y):
-                    return
-
-        self._settle_winner()
+                if self._is_same_mark(x, y):
+                    vertical_same_count += 1
+            # 揃ったか
+            else:
+                if vertical_same_count == self.status.size:
+                    self._settle_winner()
+                vertical_same_count = 0
 
     def _inspect_diagonal(self):
         """
         斜め方向の勝敗判定 斜めの盤が1人のプレイヤーで埋められていれば、勝敗が確定
         """
 
+        # いずれかの斜め線で揃っているか判定するために保持
+        diagonal_same_count = 0
+
         # 左斜め
         for x, y in zip(range(0, self.status.size), range(0, self.status.size)):
-            if not self._is_same_mark(x, y):
-                return
+            if self._is_same_mark(x, y):
+                diagonal_same_count += 1
+        # 揃ったか
+        else:
+            if diagonal_same_count == self.status.size:
+                self._settle_winner()
+            diagonal_same_count = 0
 
         # 右斜め
-        for x, y in zip(reversed(range(0, self.status.size)), reversed(range(0, self.status.size))):
-            if not self._is_same_mark(x, y):
-                return
-
-        self._settle_winner()
+        for x, y in zip(reversed(range(0, self.status.size)), range(0, self.status.size)):
+            if self._is_same_mark(x, y):
+                diagonal_same_count += 1
+        # 揃ったか
+        else:
+            if diagonal_same_count == self.status.size:
+                self._settle_winner()
